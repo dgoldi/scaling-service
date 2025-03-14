@@ -1,0 +1,122 @@
+openapi: '3.1.0'
+info:
+  title: Image Scaling Service API
+  description: API for scaling and converting images to WebP format
+  version: '1.0.0'
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns the status of the service
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /images/scale:
+    post:
+      summary: Scale an image
+      description: |
+        Uploads an image, scales it to the specified dimensions, and returns it as a WebP file.
+        The width parameter is optional - if not provided, the image will be scaled proportionally.
+        The quality parameter is optional (default is 80).
+      operationId: scaleImage
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: The image file to scale (max 20MB)
+                width:
+                  type: integer
+                  minimum: 1
+                  maximum: 10000
+                  description: The desired width of the scaled image in pixels
+                quality:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  default: 80
+                  description: The quality of the output WebP image (1-100)
+      responses:
+        '200':
+          description: Image scaled successfully
+          content:
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        uptime:
+          type: number
+          description: Server uptime in seconds
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code or identifier
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+          description: Optional additional details about the error

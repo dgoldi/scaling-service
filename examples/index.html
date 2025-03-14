@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Scaling Service Demo</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+      }
+      form {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input,
+      button {
+        margin-bottom: 15px;
+        padding: 8px 12px;
+      }
+      input[type='file'] {
+        width: 100%;
+      }
+      input[type='number'] {
+        width: 100px;
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        padding: 10px 15px;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      #preview {
+        margin-top: 20px;
+      }
+      #preview img {
+        max-width: 100%;
+        border-radius: 4px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .progress-bar {
+        height: 20px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        display: none;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        background-color: #4caf50;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+      .error {
+        color: #d9534f;
+        padding: 10px;
+        background-color: #f8d7da;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        display: none;
+      }
+      .info {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Image Scaling Service Demo</h1>
+
+    <div class="error" id="error-message"></div>
+
+    <form id="image-form" enctype="multipart/form-data">
+      <div>
+        <label for="image">Select Image (JPG, PNG, GIF, etc.)</label>
+        <input type="file" id="image" name="image" accept="image/*" required />
+      </div>
+
+      <div>
+        <label for="width">Width (optional)</label>
+        <input
+          type="number"
+          id="width"
+          name="width"
+          min="1"
+          max="10000"
+          placeholder="Original width"
+        />
+      </div>
+
+      <div>
+        <label for="quality">Quality (1-100)</label>
+        <input type="number" id="quality" name="quality" min="1" max="100" value="80" />
+      </div>
+
+      <div class="progress-bar" id="progress-container">
+        <div class="progress-bar-fill" id="progress"></div>
+      </div>
+
+      <button type="submit">Process Image</button>
+    </form>
+
+    <div id="preview">
+      <h3>Processed Image (WebP)</h3>
+      <div id="result"></div>
+      <div class="info" id="info"></div>
+    </div>
+
+    <script>
+      document.getElementById('image-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        const imageFile = document.getElementById('image').files[0];
+        const width = document.getElementById('width').value;
+        const quality = document.getElementById('quality').value;
+
+        // Validate inputs
+        if (!imageFile) {
+          showError('Please select an image file');
+          return;
+        }
+
+        // Check file size (20MB limit)
+        if (imageFile.size > 20 * 1024 * 1024) {
+          showError('Image file is too large. Maximum size is 20MB');
+          return;
+        }
+
+        formData.append('image', imageFile);
+        if (width) formData.append('width', width);
+        if (quality) formData.append('quality', quality);
+
+        try {
+          // Show progress bar
+          const progressContainer = document.getElementById('progress-container');
+          const progressBar = document.getElementById('progress');
+          progressContainer.style.display = 'block';
+          progressBar.style.width = '0%';
+
+          // Clear previous results and errors
+          document.getElementById('result').innerHTML = '';
+          document.getElementById('info').innerHTML = '';
+          hideError();
+
+          // Make request with progress tracking
+          const xhr = new XMLHttpRequest();
+
+          xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+              const percentComplete = (event.loaded / event.total) * 100;
+              progressBar.style.width = percentComplete + '%';
+            }
+          });
+
+          xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+              // Create object URL for the WebP image
+              const blob = xhr.response;
+              const url = URL.createObjectURL(blob);
+
+              // Display the processed image
+              const img = document.createElement('img');
+              img.src = url;
+
+              const resultDiv = document.getElementById('result');
+              resultDiv.innerHTML = '';
+              resultDiv.appendChild(img);
+
+              // Display image info
+              const infoDiv = document.getElementById('info');
+              infoDiv.innerHTML = `
+              Original: ${formatBytes(imageFile.size)}<br>
+              Processed: ${formatBytes(blob.size)}<br>
+              Reduction: ${calculateReduction(imageFile.size, blob.size)}
+            `;
+
+              // Hide progress bar
+              progressContainer.style.display = 'none';
+            } else {
+              progressContainer.style.display = 'none';
+              showError('Error processing image: ' + xhr.statusText);
+            }
+          });
+
+          xhr.addEventListener('error', () => {
+            progressContainer.style.display = 'none';
+            showError('Network error occurred');
+          });
+
+          // Configure and send the request
+          xhr.open('POST', '/images/scale', true);
+          xhr.responseType = 'blob';
+          xhr.send(formData);
+        } catch (error) {
+          console.error('Error:', error);
+          showError('Error processing image: ' + error.message);
+        }
+      });
+
+      function showError(message) {
+        const errorEl = document.getElementById('error-message');
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
+      }
+
+      function hideError() {
+        document.getElementById('error-message').style.display = 'none';
+      }
+
+      function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+      }
+
+      function calculateReduction(originalSize, newSize) {
+        const reduction = ((originalSize - newSize) / originalSize) * 100;
+        return reduction.toFixed(2) + '%';
+      }
+    </script>
+  </body>
+</html>

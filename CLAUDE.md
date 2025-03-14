@@ -1,30 +1,46 @@
 # Development Guidelines for Scaling Service
 
-## Code Style Guidelines
-- **Schema-First**: Use a schema-first approach with Open-API to document the API
-- **Formatting**: Use Prettier with 2-space indentation
-- **Imports**: Group imports by external/internal, alphabetize within groups
-- **Types**: Use TypeScript with strict typing, avoid `any` where possible
-- **Naming**:
-  - camelCase for variables and functions
-  - PascalCase for classes and components
-  - UPPER_SNAKE_CASE for constants
-- **Error Handling**: Use try/catch blocks for async operations, provide informative error messages
-- **Documentation**: JSDoc comments for public APIs, inline comments for complex logic
-
 ## Prompts to help implementing
 
 Prompt 1:
 
 ```
-As a wordlcass software engineer, known in node, help me to create:
+As a Node.js expert, create an image scaling service with the following structure:
 
-- node service (version 22) with express and typescript (included in node 22)
-- add the complete node-setup (including nvmrc, .npmrc, linting, prettier)
-- use a schema-first approach with Open-API
-- write the code as simple as possible (focusing on readabiliy for a junior engineer)
-- add 1 API which accepts an image and has the optional parameter "width" and "quality". this API then scales the images with the help of depedency sharp and returns the downscaled imag in webp (only expert in webp)
+### Core Requirements
+- Node.js v22 with Express and TypeScript (already inlcude in node v22)
+- Complete development setup:
+  - .nvmrc and .npmrc configuration
+  - ESLint and Prettier for code formatting
+  - use strict type checking
+  - Knip for detecting unused code
+  - Jest for testing
 
-Before implemeting, reason about the project-architecture and ask unclear questions.
-After each stage test, if the implementation is working.
+### API Design
+- Schema-first approach using OpenAPI
+- Single API endpoint that:
+  - Accepts image uploads (max 20MB)
+  - Takes optional parameters: width (number) and quality (1-100)
+  - Processes images using Sharp
+  - Returns WebP format only
+  - No authentication required
+  - No rate limiting needed
+  - No caching implementation
+
+### Engineering Practices
+- Centralized error handling with appropriate HTTP status codes
+- Input validation with detailed error messages
+- Performance optimizations for large images
+- Structured logging for requests and errors
+- Comprehensive unit and integration tests
+- Health check and monitoring endpoints
+- Docker configuration for deployment
+- Clear API documentation with examples
+
+### Implementation Instructions
+1. First analyze the architecture and explain your planned approach
+2. Explain each building-step ahead
+3. Ensure after each stage, that there a working artifact. Check if the implementation is still working, run lint, run typecheck, run tests, run knip
+4. Ask to proceed after each build-step
+
 ```

@@ -1,5 +1,54 @@
 {
+  "name": "scaling-svc",
+  "version": "1.0.0",
+  "description": "Image scaling service with Express and TypeScript",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env dist/index.js",
+    "dev": "node --env-file=.env --watch --import=tsx/esm src/index.ts",
+    "build": "tsc",
+    "test": "node --import=tsx/esm --test src/**/*.test.ts",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "knip": "knip",
+    "prepare": "husky install || true",
+    "lint-all": "npm run lint && npm run typecheck && npm run knip"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "keywords": [
+    "image",
+    "scaling",
+    "webp",
+    "sharp"
+  ],
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-fileupload": "1.5.1",
+    "sharp": "^0.33.2",
+    "swagger-ui-express": "^5.0.0",
+    "yaml": "^2.3.4"
+  },
   "devDependencies": {
-    "@anthropic-ai/claude-code": "^0.2.41"
+    "@anthropic-ai/claude-code": "^0.2.41",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/express-fileupload": "1.5.1",
+    "@types/node": "^20.11.19",
+    "@types/swagger-ui-express": "^4.1.6",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "husky": "^9.0.11",
+    "knip": "^3.13.0",
+    "prettier": "^3.2.5",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
   }
 }
