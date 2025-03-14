@@ -12,8 +12,7 @@ const uploadMiddleware = fileUpload({
   },
   abortOnLimit: true,
   useTempFiles: false,
-  debug: config.nodeEnv === 'development',
-  // More conservative parsing settings
+  // debug: config.nodeEnv === 'development',
   createParentPath: false,
   preserveExtension: true,
   safeFileNames: true,

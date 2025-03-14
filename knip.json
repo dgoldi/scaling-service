@@ -2,5 +2,13 @@
   "$schema": "https://unpkg.com/knip@latest/schema.json",
   "entry": ["src/index.ts"],
   "project": ["src/**/*.ts"],
-  "ignore": ["**/*.test.ts", "dist/**"]
+  "ignore": ["**/*.test.ts", "dist/**"],
+  "ignoreDependencies": [
+    "@anthropic-ai/claude-code",
+    "@types/pngjs",
+    "@types/supertest",
+    "pixelmatch",
+    "pngjs",
+    "supertest"
+  ]
 }
