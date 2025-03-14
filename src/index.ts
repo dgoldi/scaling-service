@@ -19,16 +19,6 @@ app.use(requestLogger);
 // Set up Swagger UI
 setupSwaggerUi(app);
 
-// Serve static files from examples directory
-app.use('/examples', express.static('examples'));
-
-// Welcome route
-app.get('/', (_req, res) => {
-  res.send(
-    'Image Scaling Service - Visit <a href="/api-docs">API Documentation</a> or try the <a href="/examples/index.html">Example App</a>',
-  );
-});
-
 // Content type middleware to log the content type
 app.use((req, _res, next) => {
   const contentType = req.headers['content-type'] || '';

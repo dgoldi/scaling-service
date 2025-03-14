@@ -46,7 +46,7 @@ export const scaleImage = async (
     // Convert to WebP with specified quality
     const outputBuffer = await imageProcessor.webp({ quality }).toBuffer();
 
-    logger.debug(`Image processed successfully. Output size: ${outputBuffer.length} bytes`);
+    logger.info(`Image processed successfully. Output size: ${outputBuffer.length} bytes`);
 
     return outputBuffer;
   } catch (error) {
