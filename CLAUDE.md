@@ -1,6 +1,47 @@
 # Development Guidelines for Scaling Service
 
-## Prompts to help implementing
+## Commands
+
+- **Start dev server**: `npm run dev`
+- **Build for production**: `npm run build`
+- **Run all tests**: `npm run test`
+- **Run single test**: `node --import=tsx/esm --test src/path/to/file.test.ts`
+- **Lint**: `npm run lint`
+- **Typecheck**: `npm run typecheck`
+- **Format code**: `npm run format`
+- **Check unused code**: `npm run knip`
+- **Run all checks**: `npm run lint-all`
+
+# Rules for Claude
+
+Propose Changes to the CLAUDE.md file, if there are new learnings during prompt-sessions.
+
+Always run these commands after making changes:
+
+```bash
+npm run format && npm run lint
+```
+
+## Code Style & Structure
+
+- Use ESM modules with `.js` extension in imports
+- Strict TypeScript with explicit types for function parameters and returns
+- PascalCase for interfaces, camelCase for variables and functions
+- Centralized error handling via middleware/error-handler.ts
+- Structure logging with proper severity levels (utils/logger.ts)
+- API endpoints in api/ directory with corresponding test files
+- Services for business logic in services/ directory
+- OpenAPI-first API development (openapi/openapi.yaml)
+- Keep comments to a minimum. Only document complex functions.
+
+## Project Requirements
+
+- Image scaling API with Sharp for WebP output
+- Accepts width and quality parameters
+- Max upload size: 20MB
+- No authentication or rate limiting
+
+## Prompts
 
 Prompt 1:
 
